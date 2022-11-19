@@ -13,21 +13,22 @@ import {
   heroesFetchingError,
   heroesDelete,
 } from '../../reducers/heroes';
-
-// Задача для этого компонента:
-// При клике на "крестик" идет удаление персонажа из общего состояния
-// Усложненная задача:
-// Удаление идет и с json файла при помощи метода DELETE
+import { createSelector } from 'reselect';
 
 const HeroesList = () => {
-  const filteredHeroes = useSelector((state) => {
-    if (state.activeFilter === 'all') {
-      return state.heroes;
-    } else {
-      return state.heroes.filter((item) => item.element === state.activeFilter);
-    }
-  });
+  const renderSelector = createSelector(
+    (state) => state.filters.activeFilter,
+    (state) => state.heroes.heroes,
+    (filters, heroes) => {
+      if (filters === 'all') {
+        return heroes;
+      } else {
+        return heroes.filter((item) => item.element === filters);
+      }
+    },
+  );
 
+  const filteredHeroes = useSelector(renderSelector);
   const heroesLoadingStatus = useSelector((state) => state.heroes);
   const dispatch = useDispatch();
   const { request } = useHttp();

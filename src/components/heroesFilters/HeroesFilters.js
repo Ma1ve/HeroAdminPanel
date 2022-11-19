@@ -1,18 +1,15 @@
-// Задача для этого компонента:
-// Фильтры должны формироваться на основании загруженных данных
-// Фильтры должны отображать только нужных героев при выборе
-// Активный фильтр имеет класс active
-// Изменять json-файл для удобства МОЖНО!
-// Представьте, что вы попросили бэкенд-разработчика об этом
-
-import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import { useSelector } from 'react-redux';
-import classNames from 'classnames';
-// import { filtersFetching, filtersFetched, filtersFetchingError } from '../../actions';
 import { useHttp } from '../../hooks/http.hook';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import classNames from 'classnames';
 
-import { filtersFetching, filtersFetched, filtersFetchingError } from '../../reducers/filters';
+import {
+  filtersFetching,
+  filtersFetched,
+  filtersFetchingError,
+  filtersChanged,
+} from '../../reducers/filters';
+
 import Spinner from '../spinner/Spinner';
 
 const HeroesFilters = () => {
@@ -25,9 +22,9 @@ const HeroesFilters = () => {
     request('http://localhost:3001/filters')
       .then((data) => dispatch(filtersFetched(data)))
       .catch(() => dispatch(filtersFetchingError()));
-  }, []);
 
-  console.log(filters);
+    // eslint-disable-next-line
+  }, []);
 
   if (filtersLoadingStatus === 'loading') {
     return <Spinner />;
@@ -40,13 +37,17 @@ const HeroesFilters = () => {
       return <h5 className="text-center mt-5">Фильтры не найдены</h5>;
     }
 
-    return arr.map(({ name, label, className }) => {
+    return arr.map(({ name, className, label }) => {
       const btnClass = classNames('btn', className, {
         active: name === activeFilter,
       });
 
       return (
-        <button key={name} id={name} className={btnClass}>
+        <button
+          key={name}
+          id={name}
+          className={btnClass}
+          onClick={() => dispatch(filtersChanged(name))}>
           {label}
         </button>
       );
@@ -66,9 +67,3 @@ const HeroesFilters = () => {
 };
 
 export default HeroesFilters;
-
-//  <button className="btn btn-outline-dark active">Все</button>
-//           <button className="btn btn-danger">Огонь</button>
-//           <button className="btn btn-primary">Вода</button>
-//           <button className="btn btn-success">Ветер</button>
-//           <button className="btn btn-secondary">Земля</button>
